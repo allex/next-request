@@ -5,6 +5,8 @@
  * MIT Licensed
  */
 
+import { param } from './param'
+
 const noop = () => {}
 
 class Inter {
@@ -55,20 +57,22 @@ const RequestQueue = () => {
     },
     process = () => {
       if (queue.length > 0 && currentCount < MAX_PARALLEL_COUNT) {
-        var [ url ] = queue.shift()
+        var o = queue.shift()
         ++currentCount
-        request(url, () => { next() })
+        request(o, () => { next() })
       }
     },
-    request = (src, cb) => {
+    request = ([ url, args ], cb) => {
+      const query = param(args)
+      const src = url + (query ? ((~url.indexOf('?') ? '&' : '?') + query) : '')
       getLoader().load(src, (err) => cb(err))
     }
 
   return {
     // Send request by parallel count limited with a queue FIFO.
     // @param {String} url The target url to request
-    push (src) {
-      queue.push([src])
+    push (src, args) {
+      queue.push([ src, args ])
       process()
     }
   }
@@ -77,7 +81,7 @@ const RequestQueue = () => {
 // default request queue
 const defaultQueue = new RequestQueue()
 
-const nextRequest = (url) => defaultQueue.push(url)
+const nextRequest = (url, args) => defaultQueue.push(url, args)
 
 export {
   RequestQueue, nextRequest
