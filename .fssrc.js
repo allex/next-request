@@ -1,11 +1,11 @@
 import path from 'path'
 import babelrc from '.babelrc'
-import { version, name, author, license, dependencies } from './package.json'
+import { version, name, author, license, dependencies, repository } from './package.json'
 
 const banner = (name, short = false) => {
   let s;
   if (short) {
-    s = `/* ${name} v${version} | ${author} */`
+    s = `/* ${name} v${version} | ${repository} */`
   } else {
     s = `/**
  * ${name} v${version}

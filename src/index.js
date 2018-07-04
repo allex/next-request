@@ -8,6 +8,7 @@
 import { param } from './param'
 
 const noop = () => {}
+const nextTick = window.setImmediate || (f => setTimeout(f, 1))
 
 class Inter {
   constructor () {
@@ -18,8 +19,8 @@ class Inter {
     this._r = true
     const l = this._l
     const reset = (err, e) => {
-      cb(err, e)
       l.onload = l.onerror = noop
+      cb(err, e)
       this.reset()
     }
     l.onload = e => reset(null, e)
@@ -50,7 +51,7 @@ const RequestQueue = () => {
     currentCount = 0,
     queue = [],
     next = () => {
-      setTimeout(() => {
+      nextTick(() => {
         --currentCount
         process()
       })
