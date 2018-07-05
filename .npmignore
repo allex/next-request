@@ -4,6 +4,7 @@
 .gitignore
 .lintcache
 .babelrc
+.npmrc
 .npmignore
 .editorconfig
 .eslintrc*
@@ -11,8 +12,6 @@
 .config
 .env
 .gitlab-ci.*
-.tmp
-.fssrc.js
 t.*
 [a-z0-9].*
 *.log
@@ -27,5 +26,3 @@ karma.conf.js
 webpack.config.js
 rollup.config.js
 src
-config
-demo
