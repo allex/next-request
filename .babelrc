@@ -5,7 +5,8 @@
       "loose": true,
       "targets": {
         "browsers": [ "last 2 versions", "not ie <= 8" ]
-      }
+      },
+      "exclude": [ "transform-es2015-typeof-symbol" ]
     } ]
   ],
   "plugins": [
