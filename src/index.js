@@ -47,26 +47,23 @@ const getLoader = () => {
 }
 
 const RequestQueue = () => {
-  var MAX_PARALLEL_COUNT = 5, // The max parallel size of network request
-    currentCount = 0,
+  let currentCount = 0
+  const MAX_PARALLEL_COUNT = 5, // The max parallel size of network request
     queue = [],
     next = () => {
-      nextTick(() => {
-        --currentCount
-        process()
-      })
-    },
-    process = () => {
-      if (queue.length > 0 && currentCount < MAX_PARALLEL_COUNT) {
+      if (queue.length && currentCount < MAX_PARALLEL_COUNT) {
         var o = queue.shift()
         ++currentCount
-        request(o, () => { next() })
+        request(o, () => {
+          --currentCount
+          next()
+        })
       }
     },
     request = ([ url, args ], cb) => {
-      const query = param(args)
+      const query = args && param(args)
       const src = url + (query ? ((~url.indexOf('?') ? '&' : '?') + query) : '')
-      getLoader().load(src, (err) => cb(err))
+      nextTick(() => getLoader().load(src, (err) => cb(err)))
     }
 
   return {
@@ -74,7 +71,7 @@ const RequestQueue = () => {
     // @param {String} url The target url to request
     push (src, args) {
       queue.push([ src, args ])
-      process()
+      next()
     }
   }
 }
