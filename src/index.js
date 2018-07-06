@@ -9,6 +9,13 @@ import { param } from './param'
 
 const noop = () => {}
 const nextTick = window.setImmediate || (f => setTimeout(f, 1))
+const isFunction = f => typeof f === 'function'
+
+// fast to array
+const toArray = a => {
+  for (var l = a.length, args = Array(l), i = 0; i < l; i++) args[i] = a[i]
+  return args
+}
 
 class Inter {
   constructor () {
@@ -42,14 +49,19 @@ const getLoader = () => {
     }
   }
   l = new Inter()
-  pool.push(l)
+  if (pool.length < 5) { // just keep first 5 for reuse
+    pool.push(l)
+  }
   return l
 }
 
-const RequestQueue = () => {
+const RequestQueue = (options = {}) => {
   let currentCount = 0
-  const MAX_PARALLEL_COUNT = 5, // The max parallel size of network request
+
+  const
+    MAX_PARALLEL_COUNT = options.concurrent || 5, // The max parallel size of network request
     queue = [],
+
     next = () => {
       if (queue.length && currentCount < MAX_PARALLEL_COUNT) {
         var o = queue.shift()
@@ -60,17 +72,33 @@ const RequestQueue = () => {
         })
       }
     },
-    request = ([ url, args ], cb) => {
+
+    request = ([ url, args, cb ], end) => {
       const query = args && param(args)
       const src = url + (query ? ((~url.indexOf('?') ? '&' : '?') + query) : '')
-      nextTick(() => getLoader().load(src, (err) => cb(err)))
+      nextTick(
+        () => getLoader().load(src, (err, e) => {
+          if (isFunction(cb)) {
+            // Use try to protect the main queue tasks been terminated by some
+            // specified cb exception.
+            try { cb(err, e) } catch (e) {}
+          }
+          end(err)
+        })
+      )
     }
 
   return {
     // Send request by parallel count limited with a queue FIFO.
     // @param {String} url The target url to request
-    push (src, args) {
-      queue.push([ src, args ])
+    push () {
+      const args = toArray(arguments), t = args[1]
+      // swap if args[1] is a function
+      if (args.length === 2 && isFunction(t)) {
+        args[2] = t
+        args[1] = null
+      }
+      queue.push(args) // [ src, params, cb ]
       next()
     }
   }
@@ -79,7 +107,10 @@ const RequestQueue = () => {
 // default request queue
 const defaultQueue = new RequestQueue()
 
-const nextRequest = (url, args) => defaultQueue.push(url, args)
+// shortcut api
+const nextRequest = function (url, args, cb) {
+  return defaultQueue.push.apply(defaultQueue, arguments)
+}
 
 export {
   RequestQueue, nextRequest
