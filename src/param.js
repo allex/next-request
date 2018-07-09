@@ -5,6 +5,10 @@
  * MIT Licensed.
  */
 
+const { hasOwnProperty } = {}
+
+const hasOwn = (o, k) => hasOwnProperty.call(o, k)
+
 const encodeURI = (s) => {
   try {
     return encodeURIComponent(s)
@@ -24,7 +28,7 @@ export function param (o, encode) {
   var sb = [], k, v, l
   encode = encode === undefined ? 1 : 0
   for (k in o) {
-    if (o.hasOwnProperty(k)) {
+    if (hasOwn(o, k)) {
       v = o[k]
       if (v && typeof v === 'object') {
         if (typeof v.length === 'number') {

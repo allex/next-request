@@ -11,7 +11,7 @@ yarn add next-request
 ```js
 import { nextRequest } from 'next-request'
 
-void nextRequest(<IMG_URL>, params)
+void nextRequest(<IMG_URL>, params, cb) // cb(err, e)
 ```
 
 ## License
