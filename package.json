@@ -1,6 +1,6 @@
 {
   "name": "next-request",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A utiltify for send request in parallel queue",
   "main": "lib/index.min.js",
   "module": "lib/index.esm.js",
