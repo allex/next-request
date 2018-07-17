@@ -12,6 +12,7 @@
 .config
 .env
 .gitlab-ci.*
+.fssrc.js
 t.*
 [a-z0-9].*
 *.log

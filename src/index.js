@@ -7,8 +7,9 @@
 
 import { param } from './param'
 
+const global = window
 const noop = () => {}
-const nextTick = window.setImmediate || (f => setTimeout(f, 1))
+const nextTick = global.setImmediate || (f => setTimeout(f, 1))
 const isFunction = f => typeof f === 'function'
 
 // fast to array
@@ -104,8 +105,10 @@ const RequestQueue = (options = {}) => {
   }
 }
 
-// default request queue
-const defaultQueue = new RequestQueue()
+const gName = '$nextRequest'
+
+// default queue (globally with cross runntime)
+const defaultQueue = global[gName] || (global[gName] = new RequestQueue())
 
 // shortcut api
 const nextRequest = function (url, args, cb) {
